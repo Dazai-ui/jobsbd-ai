@@ -210,6 +210,83 @@ async function recordSourceRun(body: Record<string, unknown>) {
 
   const { error } = await supabase.from("source_runs").insert(row);
   if (error) throw error;
+
+  const now = new Date().toISOString();
+  const success = row.status === "success";
+  const health: Record<string, unknown> = {
+    source_name: row.source_name,
+    last_status: row.status,
+    last_strategy: body.strategy ? String(body.strategy) : null,
+    last_discovered_count: row.discovered_count,
+    last_accepted_count: row.accepted_count,
+    last_error: row.error_message,
+    updated_at: now,
+  };
+
+  if (success) {
+    health.last_success_at = now;
+    health.consecutive_failures = 0;
+  } else {
+    health.last_failure_at = now;
+    const { data: existing } = await supabase
+      .from("source_health")
+      .select("consecutive_failures")
+      .eq("source_name", row.source_name)
+      .maybeSingle();
+    health.consecutive_failures = Number(existing?.consecutive_failures ?? 0) + 1;
+  }
+
+  const { error: healthError } = await supabase
+    .from("source_health")
+    .upsert(health, { onConflict: "source_name" });
+  if (healthError) throw healthError;
+}
+
+async function getSourceState(body: Record<string, unknown>) {
+  const sourceName = String(body.source_name ?? "");
+  const url = String(body.url ?? "");
+  const strategy = String(body.strategy ?? "html");
+  if (!sourceName || !url) throw new Error("Missing source state key");
+
+  const { data, error } = await supabase
+    .from("source_state")
+    .select("source_name,url,strategy,etag,last_modified,content_hash,last_http_status,last_checked_at,last_changed_at,metadata")
+    .eq("source_name", sourceName)
+    .eq("url", url)
+    .eq("strategy", strategy)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ?? null;
+}
+
+async function upsertSourceState(body: Record<string, unknown>) {
+  const state = body.state as Record<string, unknown> | undefined;
+  if (!state) throw new Error("Missing source state");
+
+  const sourceName = String(state.source_name ?? "");
+  const url = String(state.url ?? "");
+  const strategy = String(state.strategy ?? "html");
+  if (!sourceName || !url) throw new Error("Missing source state key");
+
+  const now = new Date().toISOString();
+  const row = {
+    source_name: sourceName,
+    url,
+    strategy,
+    etag: state.etag ? String(state.etag) : null,
+    last_modified: state.last_modified ? String(state.last_modified) : null,
+    content_hash: state.content_hash ? String(state.content_hash) : null,
+    last_http_status: state.last_http_status == null ? null : Number(state.last_http_status),
+    last_checked_at: now,
+    last_changed_at: state.changed ? now : (state.last_changed_at ?? null),
+    metadata: typeof state.metadata === "object" && state.metadata ? state.metadata : {},
+  };
+
+  const { error } = await supabase
+    .from("source_state")
+    .upsert(row, { onConflict: "source_name,url,strategy" });
+  if (error) throw error;
 }
 
 async function expirePastDeadlines() {
@@ -250,6 +327,16 @@ Deno.serve(async (req: Request) => {
 
     if (action === "record_source_run") {
       await recordSourceRun(body);
+      return json({ ok: true });
+    }
+
+    if (action === "get_source_state") {
+      const state = await getSourceState(body);
+      return json({ ok: true, state });
+    }
+
+    if (action === "upsert_source_state") {
+      await upsertSourceState(body);
       return json({ ok: true });
     }
 
