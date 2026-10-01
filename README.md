@@ -3,7 +3,7 @@
 Zero-cost Bangladesh-focused job aggregator for:
 
 - Entry-level AI/ML/Data/LLM/CV/NLP roles (freshers to about 2 years experience)
-- University-level early-career academic roles: Lecturer, Assistant Lecturer, Faculty Member, Research Assistant (RA), Teaching Assistant (TA), Adjunct Lecturer/Faculty, Contractual Lecturer/Faculty, Part-time Lecturer, and Visiting Lecturer/Faculty
+- CS-focused university early-career academic roles only: Lecturer, Assistant Lecturer, Faculty Member, Research Assistant (RA), Teaching Assistant (TA), Adjunct Lecturer/Faculty, Contractual Lecturer/Faculty, Part-time Lecturer, and Visiting Lecturer/Faculty in CSE/CS/Software Engineering/IT/ICT/Data Science/AI or closely related computing departments
 
 ## Architecture
 
@@ -53,7 +53,7 @@ More official university/company sources and job portals will be added increment
 
 Industry roles are kept when they are AI/ML/Data-related and appear to be fresher/junior/entry-level, normally no more than 2 years of required experience.
 
-University roles include Lecturer, Assistant Lecturer, Faculty Member, Research Assistant, Teaching Assistant, Adjunct Lecturer/Faculty, Contractual Lecturer/Faculty, Part-time Lecturer, and Visiting Lecturer/Faculty.
+University roles are restricted to computing disciplines. The title, department, or category must explicitly indicate CSE/Computer Science, Software Engineering, IT/ICT, Data Science, AI, Cybersecurity, Informatics, Computing, or a closely related computing field. Non-CS lecturer/faculty roles are rejected.
 
 Senior Lecturer, Assistant Professor, Associate Professor, Professor, and Dean are excluded from the entry-level academic track.
 
