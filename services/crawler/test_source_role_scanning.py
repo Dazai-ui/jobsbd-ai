@@ -17,3 +17,11 @@ def test_aiub_detects_entry_roles_from_faculty_pdf_text():
     )
     assert "Lecturer" in roles
     assert "Assistant Lecturer" not in roles
+
+
+def test_pdf_source_expiry_prefilter():
+    from datetime import datetime, timedelta, timezone
+
+    source = AiubFacultyPdfSource()
+    assert source._expired(datetime.now(timezone.utc) - timedelta(days=1))
+    assert not source._expired(datetime.now(timezone.utc) + timedelta(days=1))
