@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from dateutil.parser import parse as parse_date
 
 from base import JobSource
+from acquisition import StatefulHttpFetcher
 from models import NormalizedJob
 from source_policy import OFFICIAL_SOURCE_PRIORITY
 
@@ -42,6 +43,18 @@ class HtmlDetailSource(JobSource):
         self.timeout = timeout
         self.session = requests.Session()
         self.session.headers.update(DEFAULT_HEADERS)
+        self.runtime_client = None
+        self.stateful_fetcher = None
+
+    def configure_runtime(self, client) -> None:
+        self.runtime_client = client
+        self.stateful_fetcher = StatefulHttpFetcher(
+            source_name=self.name,
+            client=client,
+            session=self.session,
+            strategy="html",
+            timeout=self.timeout,
+        )
 
     def _get(self, url: str) -> str:
         response = self.session.get(url, timeout=self.timeout)
@@ -51,7 +64,15 @@ class HtmlDetailSource(JobSource):
     def _detail_urls(self) -> list[str]:
         urls: set[str] = set()
         for listing_url in self.listing_urls:
-            soup = BeautifulSoup(self._get(listing_url), "html.parser")
+            if self.stateful_fetcher is not None:
+                fetched = self.stateful_fetcher.fetch(listing_url)
+                if fetched.not_modified or not fetched.changed:
+                    continue
+                listing_html = fetched.text
+            else:
+                listing_html = self._get(listing_url)
+
+            soup = BeautifulSoup(listing_html, "html.parser")
             for anchor in soup.find_all("a", href=True):
                 label = re.sub(r"\\s+", " ", anchor.get_text(" ", strip=True)).strip()
                 if self.link_text_re and not self.link_text_re.search(label):
