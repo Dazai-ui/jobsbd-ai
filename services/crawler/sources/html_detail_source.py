@@ -31,12 +31,14 @@ class HtmlDetailSource(JobSource):
         organization_name: str,
         listing_urls: list[str],
         detail_url_regex: str,
+        link_text_regex: str | None = None,
         timeout: int = 25,
     ):
         self.name = name
         self.organization_name = organization_name
         self.listing_urls = listing_urls
         self.detail_url_re = re.compile(detail_url_regex, re.I)
+        self.link_text_re = re.compile(link_text_regex, re.I) if link_text_regex else None
         self.timeout = timeout
         self.session = requests.Session()
         self.session.headers.update(DEFAULT_HEADERS)
@@ -51,6 +53,9 @@ class HtmlDetailSource(JobSource):
         for listing_url in self.listing_urls:
             soup = BeautifulSoup(self._get(listing_url), "html.parser")
             for anchor in soup.find_all("a", href=True):
+                label = re.sub(r"\\s+", " ", anchor.get_text(" ", strip=True)).strip()
+                if self.link_text_re and not self.link_text_re.search(label):
+                    continue
                 absolute = urljoin(listing_url, anchor["href"].strip())
                 absolute = absolute.split("#", 1)[0]
                 if self.detail_url_re.match(absolute):
