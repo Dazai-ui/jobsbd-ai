@@ -3,6 +3,7 @@ from sources.demo_source import DemoSource
 from sources.ewu_pdf_source import EwuAcademicPdfSource
 from sources.html_detail_source import HtmlDetailSource
 from sources.nsu_source import NsuFacultySource
+from sources.skilljobs_source import SkillJobsSource
 from sources.ulab_source import UlabFacultySource
 
 
@@ -24,6 +25,7 @@ def build_sources(include_demo: bool = False):
             listing_urls=["https://jobs.du.ac.bd/"],
             detail_url_regex=r"^https://jobs\.du\.ac\.bd/job_details/\d+/?$",
         ),
+        SkillJobsSource(),
         HtmlDetailSource(
             name="Pathao Careers",
             organization_name="Pathao",
