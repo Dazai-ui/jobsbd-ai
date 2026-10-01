@@ -1,5 +1,8 @@
+from sources.aiub_pdf_source import AiubFacultyPdfSource
 from sources.demo_source import DemoSource
 from sources.html_detail_source import HtmlDetailSource
+from sources.nsu_source import NsuFacultySource
+from sources.ulab_source import UlabFacultySource
 
 
 def build_sources(include_demo: bool = False):
@@ -10,6 +13,9 @@ def build_sources(include_demo: bool = False):
             listing_urls=["https://www.uiu.ac.bd/career/"],
             detail_url_regex=r"^https://www\.uiu\.ac\.bd/career/(?!page/)(?!$)[^/]+/?$",
         ),
+        NsuFacultySource(),
+        UlabFacultySource(),
+        AiubFacultyPdfSource(),
         HtmlDetailSource(
             name="Pathao Careers",
             organization_name="Pathao",
