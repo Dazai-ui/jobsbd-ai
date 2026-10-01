@@ -21,14 +21,19 @@ def test_same_job_across_sources_has_same_fingerprint():
 
 
 def test_same_job_different_source_urls_deduplicates():
-    a = make("Junior Data Scientist")
-    a.organization_name = "Acme Ltd."
-    a.source_url = "https://company.example/jobs/123"
-    a.source_job_id = "123"
-
-    b = make("Junior Data Scientist")
-    b.organization_name = "Acme Limited"
-    b.source_url = "https://linkedin.com/jobs/view/999"
-    b.source_job_id = "999"
+    a = NormalizedJob(
+        title="Junior Data Scientist",
+        organization_name="Acme Ltd.",
+        source_name="Official",
+        source_url="https://company.example/jobs/123",
+        source_job_id="123",
+    )
+    b = NormalizedJob(
+        title="Junior Data Scientist",
+        organization_name="Acme Limited",
+        source_name="LinkedIn discovery",
+        source_url="https://linkedin.com/jobs/view/999",
+        source_job_id="999",
+    )
 
     assert make_fingerprint(a) == make_fingerprint(b)
