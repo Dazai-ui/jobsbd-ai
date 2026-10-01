@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from("jobs")
-    .select("*")
+    .select("id,title,organization_name,department,location,employment_type,skills,job_category,academic_role,experience_min,experience_max,freshers_allowed,is_ai_ml,is_academic,relevance_score,posted_at,deadline,source_name,source_url,source_job_id,source_priority,status,first_seen_at,last_seen_at,created_at,updated_at")
     .eq("status", "active")
     .order("first_seen_at", { ascending: false })
     .limit(100);
