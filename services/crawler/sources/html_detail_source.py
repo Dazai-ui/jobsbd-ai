@@ -130,7 +130,12 @@ class HtmlDetailSource(JobSource):
 
         # Detail pages may append lists of other vacancies. Feeding those
         # titles into classification can create false positives.
-        for marker in ("\nAvailable Jobs at ", "\nOur Office\n", "\nContact & Location"):
+        for marker in (
+            "\nAvailable Jobs at ",
+            "\nOur Office\n",
+            "\nContact & Location",
+            "\nPerks & Benefits\n",
+        ):
             if marker in compact:
                 compact = compact.split(marker, 1)[0]
 
