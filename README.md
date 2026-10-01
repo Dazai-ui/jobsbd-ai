@@ -29,19 +29,26 @@ V1 is designed for practically $0/month using Vercel, Supabase free tier, and Gi
 
 ### Company career pages
 
+- Brain Station 23 — Easy.Jobs career board, AI/data title-prefiltered
+- Enosis Solutions — official careers board, AI/data title-prefiltered
+- Therap (BD) Ltd. — Trakstar Hire board, AI/data title-prefiltered
+- Optimizely — Dhaka/global careers board, AI/data title-prefiltered
+- DataSoft Systems Bangladesh — official career pages; expired postings are discarded
 - Pathao
 - Cefalo
 - ShopUp
 
 ### Job portals
 
+- Bdjobs — public IT/Telecommunication listings, AI/data title-prefiltered before detail fetching
+- Job.com.bd — public IT/Computer listings, AI/data title-prefiltered before detail fetching
 - Skill.Jobs — title-prefiltered before detail fetching to keep crawler cost low
 
 ## Pending / special handling
 
 BRAC University's career portal is JavaScript-rendered, so it is intentionally not scraped with a brittle HTML workaround. It should get a dedicated adapter only after its public data endpoint is confirmed.
 
-More official university/company sources and job portals will be added incrementally. bdRecruit is currently not enabled because direct automated fetches are returning HTTP 403; the project will not bypass access controls.
+More official university/company sources and job portals will be added incrementally. bKash currently routes its "current jobs" button to Facebook rather than a structured public vacancy feed, so it is not scraped as an official source yet. BJIT currently reports no vacancies. bdRecruit is not enabled because direct automated fetches are returning HTTP 403; the project will not bypass access controls.
 
 ## Filtering rules
 
