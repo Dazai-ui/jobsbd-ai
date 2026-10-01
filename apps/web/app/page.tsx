@@ -2,8 +2,10 @@ import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
 import { sanitizeFilterTerm } from "@/lib/search";
 import type { Job } from "@/types/job";
+import AutoRefresh from "@/app/AutoRefresh";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type SearchParams = Promise<{
   type?: string;
@@ -92,6 +94,7 @@ export default async function Home({
 
   return (
     <main>
+      <AutoRefresh intervalMs={60_000} />
       <section className="hero">
         <div className="eyebrow">Bangladesh job tracker</div>
         <h1>JobsBD AI</h1>
