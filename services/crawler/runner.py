@@ -21,6 +21,10 @@ def main():
     failures = 0
 
     for source in sources:
+        configure = getattr(source, "configure_runtime", None)
+        if configure:
+            configure(client)
+
         print(f"[source] {source.name}")
         discovered = 0
         accepted_count = 0
@@ -48,12 +52,16 @@ def main():
                     upsert_job(client, job)
 
             if client is not None:
+                strategy = getattr(source, "active_strategy", None) or getattr(
+                    source, "acquisition_strategy", "html"
+                )
                 record_source_run(
                     client,
                     source_name=source.name,
                     status="success",
                     discovered_count=discovered,
                     accepted_count=accepted_count,
+                    strategy=strategy,
                 )
 
             print(f"  done: discovered={discovered} accepted={accepted_count}")
@@ -64,6 +72,9 @@ def main():
             traceback.print_exc()
 
             if client is not None:
+                strategy = getattr(source, "active_strategy", None) or getattr(
+                    source, "acquisition_strategy", "html"
+                )
                 record_source_run(
                     client,
                     source_name=source.name,
@@ -71,6 +82,7 @@ def main():
                     discovered_count=discovered,
                     accepted_count=accepted_count,
                     error_message=str(exc)[:2000],
+                    strategy=strategy,
                 )
 
     print(f"[done] accepted={total_accepted} source_failures={failures}")
