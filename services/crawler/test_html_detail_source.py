@@ -32,3 +32,13 @@ def test_metadata_labels():
     text = "Job Category: Fintech\nJob Type: Full Time\nJob Location: Dhaka"
     assert source()._extract_label(text, ("Job Location", "Location")) == "Dhaka"
     assert source()._extract_label(text, ("Job Type",)) == "Full Time"
+
+
+def test_h3_heading_supported_for_du_style_pages():
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(
+        "<h3>Lecturer, Department of CSE (02 post)</h3>",
+        "html.parser",
+    )
+    assert source()._first_heading(soup) == "Lecturer, Department of CSE (02 post)"
