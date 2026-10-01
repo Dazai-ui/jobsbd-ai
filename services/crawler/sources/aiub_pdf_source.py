@@ -1,5 +1,6 @@
 import io
 import re
+from datetime import datetime, timezone
 from typing import Iterable
 from urllib.parse import urljoin, urlparse
 
@@ -101,8 +102,20 @@ class AiubFacultyPdfSource(JobSource):
     def _slug(url: str) -> str:
         return urlparse(url).path.rsplit("/", 1)[-1].rsplit(".", 1)[0]
 
+    @staticmethod
+    def _expired(value) -> bool:
+        if value is None:
+            return False
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.date() < datetime.now(timezone.utc).date()
+
     def fetch(self) -> Iterable[NormalizedJob]:
         for pdf_url, label in self._pdf_links():
+            label_deadline = self._date(label, "deadline")
+            if self._expired(label_deadline):
+                continue
+
             try:
                 pdf_text = self._pdf_text(pdf_url)
             except Exception:
@@ -112,7 +125,7 @@ class AiubFacultyPdfSource(JobSource):
             if not roles:
                 continue
 
-            deadline = self._date(label + "\n" + pdf_text, "deadline")
+            deadline = label_deadline or self._date(label + "\n" + pdf_text, "deadline")
             posted = self._date(label + "\n" + pdf_text, "posted")
             slug = self._slug(pdf_url)
 
