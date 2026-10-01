@@ -67,13 +67,13 @@ class BdJobsSource(JobSource):
             if node is None:
                 break
             lines = [
-                re.sub(r"\\s+", " ", value).strip()
+                re.sub(r"\s+", " ", value).strip()
                 for value in node.stripped_strings
                 if value.strip()
             ]
             if not lines:
                 continue
-            text = "\\n".join(lines)
+            text = "\n".join(lines)
             if title.lower() not in text.lower():
                 continue
             fallback = text
@@ -162,7 +162,7 @@ class BdJobsSource(JobSource):
                 and lower != title_lower
                 and "bdjobs" not in lower
                 and not any(term in lower for term in generic_terms)
-                and not re.fullmatch(r"[\\d\\s,./()\-]+", clean)
+                and not re.fullmatch(r"[\d\s,./()\-]+", clean)
             )
 
         title_index = next(
@@ -188,17 +188,17 @@ class BdJobsSource(JobSource):
         source_url = f"https://bdjobs.com/h/details/{job_id}"
         soup = BeautifulSoup(self._get(source_url), "html.parser")
         detail_lines = [
-            re.sub(r"\\s+", " ", line).strip()
-            for line in soup.get_text("\\n", strip=True).splitlines()
+            re.sub(r"\s+", " ", line).strip()
+            for line in soup.get_text("\n", strip=True).splitlines()
             if line.strip()
         ]
         listing_lines = [
-            re.sub(r"\\s+", " ", line).strip()
+            re.sub(r"\s+", " ", line).strip()
             for line in listing_context.splitlines()
             if line.strip()
         ]
         lines = detail_lines + listing_lines
-        text = "\\n".join(lines)
+        text = "\n".join(lines)
 
         title = listing_title
         organization = self._organization(listing_lines, title)
