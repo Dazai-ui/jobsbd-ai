@@ -30,7 +30,7 @@ ACADEMIC_ROLE_PATTERNS = {
 }
 
 NON_ENTRY_INDUSTRY_TITLE_RE = re.compile(
-    r"\\b(?:senior|sr\\.?|lead|principal|manager|head|director|staff)\\b",
+    r"\b(?:senior|sr\.?|lead|principal|manager|head|director|staff)\b",
     re.I,
 )
 
