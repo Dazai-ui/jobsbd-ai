@@ -29,6 +29,11 @@ ACADEMIC_ROLE_PATTERNS = {
     "lecturer": r"\blecturer\b",
 }
 
+NON_ENTRY_INDUSTRY_TITLE_RE = re.compile(
+    r"\\b(?:senior|sr\\.?|lead|principal|manager|head|director|staff)\\b",
+    re.I,
+)
+
 NON_ENTRY_ACADEMIC_PATTERNS = (
     r"\bsenior\s+lecturer\b",
     r"\bassistant\s+professor\b",
@@ -172,5 +177,8 @@ def accepted(job: NormalizedJob) -> bool:
 
     if job.experience_min is not None:
         return job.experience_min <= 2
+
+    if NON_ENTRY_INDUSTRY_TITLE_RE.search(job.title):
+        return False
 
     return True
