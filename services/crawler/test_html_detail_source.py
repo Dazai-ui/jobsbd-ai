@@ -52,3 +52,22 @@ def test_generic_follow_us_heading_is_skipped():
         "html.parser",
     )
     assert source()._first_heading(soup) == "Research Physician – SmartAMR Project"
+
+
+def test_listing_link_text_prefilter():
+    src = HtmlDetailSource(
+        name="Filtered",
+        organization_name="Org",
+        listing_urls=["https://example.com/jobs/"],
+        detail_url_regex=r"^https://example\.com/jobs/[^/]+/?$",
+        link_text_regex=r"machine learning|data",
+    )
+    src._get = lambda _: """
+      <a href="/jobs/frontend">Frontend Engineer</a>
+      <a href="/jobs/ml">Machine Learning Engineer</a>
+      <a href="/jobs/data">Data Analyst</a>
+    """
+    assert src._detail_urls() == [
+        "https://example.com/jobs/data",
+        "https://example.com/jobs/ml",
+    ]
