@@ -36,6 +36,8 @@ class AiubFacultyPdfSource(JobSource):
     name = "AIUB Careers"
     organization_name = "American International University-Bangladesh (AIUB)"
     listing_url = "https://www.aiub.edu/about/career"
+    short_name = "AIUB"
+    adapter_name = "academic_pdf"
 
     def __init__(self, timeout: int = 30):
         self.timeout = timeout
@@ -116,18 +118,24 @@ class AiubFacultyPdfSource(JobSource):
 
             for role in roles:
                 yield NormalizedJob(
-                    title=f"{role} – AIUB Faculty Search",
+                    title=f"{role} – {self.short_name} Faculty Search",
                     organization_name=self.organization_name,
                     source_name=self.name,
                     source_url=pdf_url,
                     location="Dhaka",
-                    description=f"Official AIUB faculty circular. Entry-level academic role detected: {role}.",
-                    requirements=f"See the linked AIUB circular for the full {role} requirements.",
+                    description=(
+                        f"Official {self.short_name} academic circular. "
+                        f"Entry-level academic role detected: {role}."
+                    ),
+                    requirements=(
+                        f"See the linked {self.short_name} circular for "
+                        f"the full {role} requirements."
+                    ),
                     posted_at=posted,
                     deadline=deadline,
                     source_job_id=f"{slug}:{role.lower().replace(' ', '-')}",
                     raw_payload={
-                        "adapter": "aiub_pdf",
+                        "adapter": self.adapter_name,
                         "listing_label": label,
                     },
                 )
