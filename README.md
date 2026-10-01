@@ -10,7 +10,7 @@ Zero-cost Bangladesh-focused job aggregator for:
 - `apps/web` — Next.js frontend/API for Vercel
 - `services/crawler` — Python source adapters, normalization, filtering, classification, deadline handling, and deduplication
 - `supabase/migrations` — PostgreSQL schema and RLS
-- `.github/workflows` — push CI plus hourly crawler execution using GitHub Actions
+- `.github/workflows` — CI plus automatic 30-minute crawler execution using GitHub Actions
 
 ## Cost target
 
@@ -55,7 +55,7 @@ Expired jobs are dropped automatically when a parsable application deadline is a
 
 ## Cost-control rules
 
-- Career pages are polled at low frequency.
+- Career pages are polled automatically every 30 minutes.
 - Expired PDF circulars are skipped before download when the archive exposes a deadline.
 - No paid LLM/API is required for classification.
 - No paid standalone load balancer is required for V1.
@@ -138,5 +138,6 @@ Each source gets its own adapter or explicit configuration. Prefer official APIs
 
 ## CI
 
-- `crawl.yml` runs crawler tests and a live dry-run when Supabase secrets are absent.
+- `crawl.yml` runs tests and automatically crawls/ingests jobs every 30 minutes using GitHub OIDC.
 - `web-ci.yml` runs TypeScript checking and a production Next.js build for frontend changes.
+- `keepalive.yml` creates one monthly heartbeat commit so GitHub does not disable scheduled workflows after 60 days of repository inactivity.
