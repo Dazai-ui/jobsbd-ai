@@ -7,11 +7,13 @@ on:
     paths:
       - "services/crawler/**"
       - ".github/workflows/crawl.yml"
+      - "supabase/functions/github-ingest/**"
   schedule:
     - cron: "17 * * * *"
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   crawl:
@@ -35,15 +37,28 @@ jobs:
         working-directory: services/crawler
         run: pytest -q
 
-      - name: Crawl official sources
+      - name: Get GitHub OIDC token
+        id: oidc
+        shell: bash
+        run: |
+          set -euo pipefail
+          audience="jobsbd-ai-ingest"
+          token_json="$(curl --fail --silent --show-error             -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN"             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$audience")"
+          token="$(python -c 'import json,sys; print(json.load(sys.stdin)["value"])' <<< "$token_json")"
+          echo "::add-mask::$token"
+          echo "token=$token" >> "$GITHUB_OUTPUT"
+
+      - name: Check ingest authentication
+        shell: bash
+        env:
+          INGEST_ENDPOINT: https://hxywgajeikdvoxbiohfq.supabase.co/functions/v1/github-ingest
+          INGEST_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+        run: |
+          curl --fail --silent --show-error             -H "Authorization: Bearer $INGEST_OIDC_TOKEN"             -H "Content-Type: application/json"             --data '{"action":"health"}'             "$INGEST_ENDPOINT"
+
+      - name: Crawl and ingest jobs
         working-directory: services/crawler
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            python runner.py
-          else
-            echo "Supabase secrets are not configured yet; running a live dry-run instead."
-            DRY_RUN=true python runner.py
-          fi
+          INGEST_ENDPOINT: https://hxywgajeikdvoxbiohfq.supabase.co/functions/v1/github-ingest
+          INGEST_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+        run: python runner.py
