@@ -62,7 +62,7 @@ class HtmlDetailSource(JobSource):
             "careers at uiu", "career", "careers", "job openings",
             "open positions", "apply for this position",
         }
-        for selector in ("h1", "main h2", "article h2", "h2"):
+        for selector in ("h1", "main h2", "article h2", "h2", "main h3", "article h3", "h3"):
             for node in soup.select(selector):
                 text = node.get_text(" ", strip=True)
                 if text and text.lower() not in generic:
