@@ -42,13 +42,12 @@ V1 is designed for practically $0/month using Vercel, Supabase free tier, and Gi
 
 - Bdjobs — public IT/Telecommunication listings, AI/data title-prefiltered before detail fetching
 - Job.com.bd — public IT/Computer listings, AI/data title-prefiltered before detail fetching
-- Skill.Jobs — title-prefiltered before detail fetching to keep crawler cost low
 
 ## Pending / special handling
 
 BRAC University's career portal is JavaScript-rendered, so it is intentionally not scraped with a brittle HTML workaround. It should get a dedicated adapter only after its public data endpoint is confirmed.
 
-More official university/company sources and job portals will be added incrementally. bKash currently routes its "current jobs" button to Facebook rather than a structured public vacancy feed, so it is not scraped as an official source yet. BJIT currently reports no vacancies. bdRecruit is not enabled because direct automated fetches are returning HTTP 403; the project will not bypass access controls.
+More official university/company sources and job portals will be added incrementally. bKash currently routes its "current jobs" button to Facebook rather than a structured public vacancy feed, so it is not scraped as an official source yet. BJIT currently reports no vacancies. Skill.Jobs and bdRecruit are currently disabled because automated fetches return HTTP 403; the project will not bypass access controls.
 
 ## Filtering rules
 
