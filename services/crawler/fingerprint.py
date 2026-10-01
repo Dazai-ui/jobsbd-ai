@@ -11,12 +11,14 @@ def normalize(text: str) -> str:
 
 
 def make_fingerprint(job: NormalizedJob) -> str:
+    """Create a source-independent first-pass duplicate key."""
     deadline = job.deadline.date().isoformat() if job.deadline else ""
-    source_id = job.source_job_id or ""
+    fallback_id = "" if deadline else (job.source_job_id or job.source_url)
+
     canonical = "|".join([
         normalize(job.organization_name),
         normalize(job.title),
         deadline,
-        source_id,
+        normalize(fallback_id),
     ])
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
