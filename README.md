@@ -74,11 +74,20 @@ Every source runs independently. If one career website changes or temporarily fa
 - error message
 - run timestamp
 
-## Deduplication
+## Deduplication and source priority
 
 The first-pass fingerprint is source-independent when a deadline is known, so the same organization/title/deadline found on multiple websites can map to one job.
 
-`job_sources` preserves the individual source URLs so the UI can later display multiple sources while prioritizing the official application page.
+`job_sources` preserves every discovered source URL. Primary-source precedence is:
+
+1. Official employer/university pages — priority 10
+2. Job portals — priority 30
+3. Discovery sources — priority 50
+4. Demo/test data — priority 90
+
+A lower-quality portal source cannot replace an official application link already stored for the same job.
+
+The crawler also marks previously stored jobs as `expired` after their application deadline passes.
 
 ## Environment variables
 
@@ -108,6 +117,7 @@ Run the migrations in order:
 
 1. `supabase/migrations/001_init.sql`
 2. `supabase/migrations/002_source_tracking.sql`
+3. `supabase/migrations/003_source_priority.sql`
 
 Optionally run `supabase/seed.sql`.
 
@@ -125,3 +135,9 @@ DRY_RUN=true python runner.py
 ## Source policy
 
 Each source gets its own adapter or explicit configuration. Prefer official APIs, RSS, JSON/JSON-LD, and official career pages. HTML/PDF extraction is used only on public pages with low-frequency polling. Do not add bypasses for access controls, anti-bot systems, or restricted content.
+
+
+## CI
+
+- `crawl.yml` runs crawler tests and a live dry-run when Supabase secrets are absent.
+- `web-ci.yml` runs TypeScript checking and a production Next.js build for frontend changes.
