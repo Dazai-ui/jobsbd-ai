@@ -58,6 +58,43 @@ class BdJobsSource(JobSource):
     def _relevant_title(title: str) -> bool:
         return bool(TITLE_RE.search(title))
 
+    @staticmethod
+    def _card_text(anchor, title: str) -> str:
+        node = anchor
+        fallback = title
+        for _ in range(7):
+            node = getattr(node, "parent", None)
+            if node is None:
+                break
+            lines = [
+                re.sub(r"\\s+", " ", value).strip()
+                for value in node.stripped_strings
+                if value.strip()
+            ]
+            if not lines:
+                continue
+            text = "\\n".join(lines)
+            if title.lower() not in text.lower():
+                continue
+            fallback = text
+            lower = text.lower()
+            if (
+                len(lines) >= 3
+                and len(text) <= 5000
+                and any(
+                    marker in lower
+                    for marker in (
+                        "experience",
+                        "deadline",
+                        "location",
+                        "published",
+                        "company",
+                    )
+                )
+            ):
+                return text
+        return fallback
+
     def _candidates(self):
         seen: set[str] = set()
         for page in range(1, self.pages + 1):
@@ -74,7 +111,7 @@ class BdJobsSource(JobSource):
                     continue
 
                 seen.add(job_id)
-                yield job_id, title
+                yield job_id, title, self._card_text(anchor, title)
 
     @staticmethod
     def _line_value(lines: list[str], labels: tuple[str, ...]) -> Optional[str]:
@@ -110,48 +147,78 @@ class BdJobsSource(JobSource):
     @staticmethod
     def _organization(lines: list[str], title: str) -> str:
         title_lower = title.lower()
-        generic = {
-            "image", "share", "apply now", "requirements", "responsibilities & context",
-            "employment status", "job location", "workplace", "skills & expertise",
-        }
+        generic_terms = (
+            "image", "share", "apply now", "requirements",
+            "responsibilities", "employment status", "job location",
+            "workplace", "skills", "experience", "deadline",
+            "published", "posted", "vacancy", "salary",
+        )
+
+        def usable(candidate: str) -> bool:
+            clean = candidate.strip(" :-")
+            lower = clean.lower()
+            return bool(
+                clean
+                and lower != title_lower
+                and "bdjobs" not in lower
+                and not any(term in lower for term in generic_terms)
+                and not re.fullmatch(r"[\\d\\s,./()\-]+", clean)
+            )
 
         title_index = next(
             (i for i, line in enumerate(lines) if line.lower() == title_lower),
             None,
         )
         if title_index is not None:
+            for candidate in lines[title_index + 1:title_index + 6]:
+                if usable(candidate):
+                    return candidate.strip(" :-")[:250]
             for candidate in reversed(lines[max(0, title_index - 6):title_index]):
-                clean = candidate.strip()
-                lower = clean.lower()
-                if (
-                    clean
-                    and lower not in generic
-                    and "bdjobs" not in lower
-                    and "image" not in lower
-                    and not lower.startswith("published")
-                ):
-                    return clean[:250]
+                if usable(candidate):
+                    return candidate.strip(" :-")[:250]
 
         return "Bdjobs Employer"
 
-    def _parse_detail(self, job_id: str, listing_title: str) -> NormalizedJob:
+    def _parse_detail(
+        self,
+        job_id: str,
+        listing_title: str,
+        listing_context: str = "",
+    ) -> NormalizedJob:
         source_url = f"https://bdjobs.com/h/details/{job_id}"
         soup = BeautifulSoup(self._get(source_url), "html.parser")
-        lines = [
-            re.sub(r"\s+", " ", line).strip()
-            for line in soup.get_text("\n", strip=True).splitlines()
+        detail_lines = [
+            re.sub(r"\\s+", " ", line).strip()
+            for line in soup.get_text("\\n", strip=True).splitlines()
             if line.strip()
         ]
-        text = "\n".join(lines)
+        listing_lines = [
+            re.sub(r"\\s+", " ", line).strip()
+            for line in listing_context.splitlines()
+            if line.strip()
+        ]
+        lines = detail_lines + listing_lines
+        text = "\\n".join(lines)
 
         title = listing_title
-        organization = self._organization(lines, title)
-        location = self._line_value(lines, ("Job Location", "Location"))
-        employment_type = self._line_value(lines, ("Employment Status",))
-        deadline = self._parse_date(
-            self._line_value(lines, ("Application Deadline",))
+        organization = self._organization(listing_lines, title)
+        if organization == "Bdjobs Employer":
+            organization = self._organization(detail_lines, title)
+
+        location = self._line_value(
+            lines, ("Job Location", "Location")
         )
-        posted = self._parse_date(self._line_value(lines, ("Published",)))
+        employment_type = self._line_value(
+            lines, ("Employment Status", "Job Nature", "Employment Type")
+        )
+        deadline = self._parse_date(
+            self._line_value(
+                lines, ("Application Deadline", "Deadline", "Apply by")
+            )
+        )
+        posted = self._parse_date(
+            self._line_value(lines, ("Published", "Published on", "Posted"))
+        )
 
         return NormalizedJob(
             title=title,
@@ -170,8 +237,8 @@ class BdJobsSource(JobSource):
         )
 
     def fetch(self) -> Iterable[NormalizedJob]:
-        for job_id, title in self._candidates():
+        for job_id, title, listing_context in self._candidates():
             try:
-                yield self._parse_detail(job_id, title)
+                yield self._parse_detail(job_id, title, listing_context)
             except Exception:
                 continue
