@@ -148,3 +148,25 @@ Each source gets its own adapter or explicit configuration. Prefer official APIs
 - `crawl.yml` runs tests and automatically crawls/ingests jobs every 30 minutes using GitHub OIDC.
 - `web-ci.yml` runs TypeScript checking and a production Next.js build for frontend changes.
 - `keepalive.yml` creates one monthly heartbeat commit so GitHub does not disable scheduled workflows after 60 days of repository inactivity.
+
+
+## Fallback acquisition engine
+
+The crawler uses source-specific adapters and a public-data acquisition hierarchy:
+
+1. Official/public API or JSON
+2. RSS/Atom
+3. XML sitemap
+4. JSON-LD JobPosting
+5. Public server-rendered HTML
+6. Browser rendering of public pages when needed
+7. Public search-index discovery
+8. Alert-email discovery
+
+The crawler does not bypass login walls, CAPTCHA, rate limits, or access controls.
+
+Generic public HTML sources now persist ETag, Last-Modified, HTTP status, and SHA-256 content hashes in `source_state`. Unchanged listing pages are skipped. `source_health` records each source's last status, acquisition strategy, failure streak, and accepted/discovered counts.
+
+Public search discovery uses a small set of Bing RSS queries every crawler cycle to discover indexed LinkedIn/Facebook job URLs. It does not log into or scrape LinkedIn/Facebook pages.
+
+The scheduled crawler runs every 8 hours at 00:07, 08:07, and 16:07 UTC.
