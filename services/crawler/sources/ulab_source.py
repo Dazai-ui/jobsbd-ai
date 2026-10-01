@@ -8,6 +8,7 @@ from dateutil.parser import parse as parse_date
 
 from base import JobSource
 from models import NormalizedJob
+from source_policy import OFFICIAL_SOURCE_PRIORITY
 
 
 HEADERS = {
@@ -145,6 +146,7 @@ class UlabFacultySource(JobSource):
                     job_category=area,
                     deadline=deadline,
                     source_job_id=f"{notice_slug}:{position}:{department or ''}:{area or ''}",
+                    source_priority=OFFICIAL_SOURCE_PRIORITY,
                     raw_payload={
                         "adapter": "ulab_table",
                         "notice_url": url,
