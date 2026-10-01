@@ -34,6 +34,24 @@ NON_ENTRY_INDUSTRY_TITLE_RE = re.compile(
     re.I,
 )
 
+CS_ACADEMIC_RE = re.compile(
+    r"\b(?:"
+    r"computer\s+science(?:\s*(?:&|and)\s*engineering)?|"
+    r"computer\s+science\s+and\s+engineering|"
+    r"computer\s+engineering|"
+    r"software\s+engineering|"
+    r"information\s+technology|"
+    r"information\s+and\s+communication\s+technology|"
+    r"information\s+communication\s+technology|"
+    r"data\s+science|"
+    r"artificial\s+intelligence|"
+    r"cyber\s*security|cybersecurity|"
+    r"informatics|computing|"
+    r"cse|ict"
+    r")\b",
+    re.I,
+)
+
 NON_ENTRY_ACADEMIC_PATTERNS = (
     r"\bsenior\s+lecturer\b",
     r"\bassistant\s+professor\b",
@@ -153,11 +171,24 @@ def _expired(job: NormalizedJob) -> bool:
     return deadline.date() < datetime.now(timezone.utc).date()
 
 
+def is_cs_academic(job: NormalizedJob) -> bool:
+    text = " ".join(
+        part for part in [
+            job.title,
+            job.department or "",
+            job.job_category or "",
+        ] if part
+    )
+    return bool(CS_ACADEMIC_RE.search(text))
+
+
 def accepted(job: NormalizedJob) -> bool:
     if _expired(job):
         return False
 
     if job.is_academic:
+        if not is_cs_academic(job):
+            return False
         if job.freshers_allowed:
             return True
         if job.experience_max is not None:
