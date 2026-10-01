@@ -8,6 +8,7 @@ from dateutil.parser import parse as parse_date
 
 from base import JobSource
 from models import NormalizedJob
+from source_policy import OFFICIAL_SOURCE_PRIORITY
 
 
 class JsonLdJobSource(JobSource):
@@ -97,5 +98,6 @@ class JsonLdJobSource(JobSource):
                     posted_at=self._safe_date(item.get("datePosted")),
                     deadline=self._safe_date(item.get("validThrough")),
                     source_job_id=str(item.get("identifier") or "") or None,
+                    source_priority=OFFICIAL_SOURCE_PRIORITY,
                     raw_payload=item,
                 )
