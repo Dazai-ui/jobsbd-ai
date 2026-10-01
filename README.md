@@ -94,22 +94,20 @@ The crawler also marks previously stored jobs as `expired` after their applicati
 ### Web / Vercel
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+NEXT_PUBLIC_SUPABASE_URL=https://hxywgajeikdvoxbiohfq.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_054cvShsfQ89th_lgxn36Q_uSpEWTlf
 ```
 
 ### GitHub Actions / crawler
 
-Create repository secrets:
+The crawler does **not** store a Supabase service-role secret in GitHub.
 
-```bash
-SUPABASE_URL=...
-SUPABASE_SERVICE_ROLE_KEY=...
-```
+GitHub Actions requests a short-lived GitHub OIDC token and sends it to the
+`github-ingest` Supabase Edge Function. The function only accepts tokens for
+this repository, `main`, and `.github/workflows/crawl.yml`, then performs
+database writes using Supabase server-side credentials.
 
-Never expose the Supabase service-role key in browser code.
-
-If the secrets are not configured, GitHub Actions runs the live crawler in `DRY_RUN` mode instead of failing.
+This keeps the GitHub repository free of long-lived Supabase secrets.
 
 ## Supabase setup
 
