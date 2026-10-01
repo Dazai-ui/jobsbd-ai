@@ -61,6 +61,7 @@ def record_source_run(
     discovered_count: int,
     accepted_count: int,
     error_message: str | None = None,
+    strategy: str | None = None,
 ) -> None:
     client.post({
         "action": "record_source_run",
@@ -69,4 +70,52 @@ def record_source_run(
         "discovered_count": discovered_count,
         "accepted_count": accepted_count,
         "error_message": error_message,
+        "strategy": strategy,
+    })
+
+
+def get_source_state(
+    client: IngestClient,
+    *,
+    source_name: str,
+    url: str,
+    strategy: str = "html",
+) -> dict[str, Any] | None:
+    data = client.post({
+        "action": "get_source_state",
+        "source_name": source_name,
+        "url": url,
+        "strategy": strategy,
+    })
+    return data.get("state")
+
+
+def upsert_source_state(
+    client: IngestClient,
+    *,
+    source_name: str,
+    url: str,
+    strategy: str,
+    etag: str | None,
+    last_modified: str | None,
+    content_hash: str | None,
+    last_http_status: int | None,
+    changed: bool,
+    last_changed_at: str | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> None:
+    client.post({
+        "action": "upsert_source_state",
+        "state": {
+            "source_name": source_name,
+            "url": url,
+            "strategy": strategy,
+            "etag": etag,
+            "last_modified": last_modified,
+            "content_hash": content_hash,
+            "last_http_status": last_http_status,
+            "changed": changed,
+            "last_changed_at": last_changed_at,
+            "metadata": metadata or {},
+        },
     })
