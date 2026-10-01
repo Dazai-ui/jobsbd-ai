@@ -75,3 +75,27 @@ def test_unknown_experience_senior_ai_role_is_rejected():
 def test_senior_named_ai_role_can_pass_if_experience_is_within_limit():
     job = enrich(make("Senior Data Scientist", "1-2 years experience"))
     assert accepted(job)
+
+
+def test_non_cs_lecturer_is_rejected():
+    job = enrich(make("Lecturer, Department of Political Science"))
+    assert job.is_academic
+    assert not accepted(job)
+
+
+def test_cse_lecturer_is_accepted():
+    job = enrich(make("Lecturer, Department of Computer Science and Engineering"))
+    assert job.is_academic
+    assert accepted(job)
+
+
+def test_software_engineering_lecturer_is_accepted():
+    job = enrich(make("Lecturer - Software Engineering"))
+    assert job.is_academic
+    assert accepted(job)
+
+
+def test_ambiguous_faculty_role_without_cs_context_is_rejected():
+    job = enrich(make("Adjunct Faculty"))
+    assert job.is_academic
+    assert not accepted(job)
