@@ -135,6 +135,7 @@ class HtmlDetailSource(JobSource):
             "\nOur Office\n",
             "\nContact & Location",
             "\nPerks & Benefits\n",
+            "\nSimilar jobs\n",
         ):
             if marker in compact:
                 compact = compact.split(marker, 1)[0]
