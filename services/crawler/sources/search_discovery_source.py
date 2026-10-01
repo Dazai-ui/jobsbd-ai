@@ -6,6 +6,7 @@ from urllib.parse import urlencode, urlparse
 import requests
 
 from base import JobSource
+from acquisition import StatefulHttpFetcher
 from models import NormalizedJob
 from source_policy import DISCOVERY_SOURCE_PRIORITY
 
@@ -35,6 +36,18 @@ class SearchDiscoverySource(JobSource):
         self.timeout = timeout
         self.session = requests.Session()
         self.session.headers.update(HEADERS)
+        self.runtime_client = None
+        self.stateful_fetcher = None
+
+    def configure_runtime(self, client) -> None:
+        self.runtime_client = client
+        self.stateful_fetcher = StatefulHttpFetcher(
+            source_name=self.name,
+            client=client,
+            session=self.session,
+            strategy="search",
+            timeout=self.timeout,
+        )
 
     @staticmethod
     def _parse_identity(result_title: str, url: str) -> tuple[str, str]:
@@ -71,10 +84,17 @@ class SearchDiscoverySource(JobSource):
     def _search(self, query: str):
         params = urlencode({"q": query, "format": "rss"})
         url = f"https://www.bing.com/search?{params}"
-        response = self.session.get(url, timeout=self.timeout)
-        response.raise_for_status()
+        if self.stateful_fetcher is not None:
+            fetched = self.stateful_fetcher.fetch(url)
+            if fetched.not_modified or not fetched.changed:
+                return
+            xml_text = fetched.text
+        else:
+            response = self.session.get(url, timeout=self.timeout)
+            response.raise_for_status()
+            xml_text = response.text
 
-        root = ET.fromstring(response.text)
+        root = ET.fromstring(xml_text)
         for item in root.findall(".//item"):
             title = (item.findtext("title") or "").strip()
             link = (item.findtext("link") or "").strip()
