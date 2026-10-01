@@ -30,9 +30,15 @@ jobs:
         working-directory: services/crawler
         run: pytest -q
 
-      - name: Run crawler
+      - name: Crawl official sources
         working-directory: services/crawler
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: python runner.py
+        run: |
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            python runner.py
+          else
+            echo "Supabase secrets are not configured yet; running a live dry-run instead."
+            DRY_RUN=true python runner.py
+          fi
