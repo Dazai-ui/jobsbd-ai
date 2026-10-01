@@ -9,7 +9,7 @@ on:
       - ".github/workflows/crawl.yml"
       - "supabase/functions/github-ingest/**"
   schedule:
-    - cron: "7,37 * * * *"
+    - cron: "7 0,8,16 * * *"
 
 concurrency:
   group: jobsbd-crawler
