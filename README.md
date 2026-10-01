@@ -33,11 +33,15 @@ V1 is designed for practically $0/month using Vercel, Supabase free tier, and Gi
 - Cefalo
 - ShopUp
 
+### Job portals
+
+- Skill.Jobs — title-prefiltered before detail fetching to keep crawler cost low
+
 ## Pending / special handling
 
 BRAC University's career portal is JavaScript-rendered, so it is intentionally not scraped with a brittle HTML workaround. It should get a dedicated adapter only after its public data endpoint is confirmed.
 
-More official university/company sources and job portals will be added incrementally.
+More official university/company sources and job portals will be added incrementally. bdRecruit is currently not enabled because direct automated fetches are returning HTTP 403; the project will not bypass access controls.
 
 ## Filtering rules
 
