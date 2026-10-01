@@ -118,6 +118,7 @@ Run the migrations in order:
 1. `supabase/migrations/001_init.sql`
 2. `supabase/migrations/002_source_tracking.sql`
 3. `supabase/migrations/003_source_priority.sql`
+4. `supabase/migrations/004_api_access_and_indexes.sql`
 
 Optionally run `supabase/seed.sql`.
 
