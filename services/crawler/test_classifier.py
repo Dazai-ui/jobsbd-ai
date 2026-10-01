@@ -45,8 +45,14 @@ def test_assistant_lecturer_is_accepted():
     assert accepted(job)
 
 
-def test_adjunct_faculty_is_accepted():
+def test_non_cs_adjunct_faculty_is_rejected():
     job = enrich(make("Adjunct Faculty, Department of EEE"))
+    assert job.academic_role == "adjunct_faculty"
+    assert not accepted(job)
+
+
+def test_cse_adjunct_faculty_is_accepted():
+    job = enrich(make("Adjunct Faculty, Department of CSE"))
     assert job.academic_role == "adjunct_faculty"
     assert accepted(job)
 
