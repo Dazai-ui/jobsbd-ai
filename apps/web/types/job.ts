@@ -1,0 +1,20 @@
+export type Job = {
+  id: string;
+  title: string;
+  organization_name: string;
+  department: string | null;
+  location: string | null;
+  employment_type: string | null;
+  skills: string[];
+  job_category: string | null;
+  academic_role: string | null;
+  experience_min: number | null;
+  experience_max: number | null;
+  freshers_allowed: boolean;
+  is_ai_ml: boolean;
+  is_academic: boolean;
+  posted_at: string | null;
+  deadline: string | null;
+  source_name: string;
+  source_url: string;
+};
