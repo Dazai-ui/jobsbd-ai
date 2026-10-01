@@ -61,7 +61,7 @@ class HtmlDetailSource(JobSource):
     def _first_heading(soup: BeautifulSoup) -> Optional[str]:
         generic = {
             "careers at uiu", "career", "careers", "job openings",
-            "open positions", "apply for this position",
+            "open positions", "apply for this position", "follow us",
         }
         for selector in ("h1", "main h2", "article h2", "h2", "main h3", "article h3", "h3"):
             for node in soup.select(selector):
