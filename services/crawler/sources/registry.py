@@ -7,6 +7,7 @@ from sources.html_detail_source import HtmlDetailSource
 from sources.jobcombd_source import JobComBdSource
 from sources.nsu_source import NsuFacultySource
 from sources.nextjobz_source import NextJobzSource
+from sources.search_discovery_source import SearchDiscoverySource
 from sources.ulab_source import UlabFacultySource
 
 
@@ -95,6 +96,7 @@ def build_sources(include_demo: bool = False):
         BdJobsAcademicSource(),
         JobComBdSource(),
         NextJobzSource(),
+        SearchDiscoverySource(),
     ]
 
     if include_demo:
