@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { sanitizeFilterTerm } from "@/lib/search";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const type = url.searchParams.get("type");
@@ -46,5 +49,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ jobs: data ?? [] });
+  return NextResponse.json(
+    { jobs: data ?? [] },
+    { headers: { "Cache-Control": "no-store, max-age=0" } }
+  );
 }
