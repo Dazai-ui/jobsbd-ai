@@ -5,6 +5,8 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const type = url.searchParams.get("type");
   const q = url.searchParams.get("q")?.trim();
+  const location = url.searchParams.get("location")?.trim();
+  const fresh = url.searchParams.get("fresh") === "1";
   const maxExpRaw = url.searchParams.get("max_exp");
   const maxExp = maxExpRaw ? Number(maxExpRaw) : null;
   const supabase = getSupabase();
@@ -20,11 +22,17 @@ export async function GET(request: NextRequest) {
   if (type === "academic") query = query.eq("is_academic", true);
 
   if (q) {
-    const escaped = q.replaceAll(",", " ");
+    const safe = q.replaceAll(",", " ");
     query = query.or(
-      `title.ilike.%${escaped}%,organization_name.ilike.%${escaped}%,department.ilike.%${escaped}%`
+      `title.ilike.%${safe}%,organization_name.ilike.%${safe}%,department.ilike.%${safe}%,job_category.ilike.%${safe}%`
     );
   }
+
+  if (location) {
+    query = query.ilike("location", `%${location.replaceAll(",", " ")}%`);
+  }
+
+  if (fresh) query = query.eq("freshers_allowed", true);
 
   if (maxExp != null && Number.isFinite(maxExp)) {
     query = query.or(
