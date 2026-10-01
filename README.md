@@ -42,6 +42,7 @@ V1 is designed for practically $0/month using Vercel, Supabase free tier, and Gi
 
 - Bdjobs — IT/Telecommunication AI/data feed plus a separate Education/Training feed restricted to CS/CSE/computing Lecturer/Faculty/RA/TA roles
 - Job.com.bd — public IT/Computer listings, AI/data title-prefiltered before detail fetching
+- NextJobz — public Bangladesh jobs listing used as a fallback for AI/data and CS-academic discovery
 
 ## Pending / special handling
 
