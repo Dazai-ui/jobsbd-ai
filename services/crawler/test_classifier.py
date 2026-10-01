@@ -64,3 +64,14 @@ def test_expired_job_is_rejected():
         deadline=datetime.now(timezone.utc) - timedelta(days=1),
     ))
     assert not accepted(job)
+
+
+def test_unknown_experience_senior_ai_role_is_rejected():
+    job = enrich(make("Senior Data Scientist"))
+    assert job.is_ai_ml
+    assert not accepted(job)
+
+
+def test_senior_named_ai_role_can_pass_if_experience_is_within_limit():
+    job = enrich(make("Senior Data Scientist", "1-2 years experience"))
+    assert accepted(job)
