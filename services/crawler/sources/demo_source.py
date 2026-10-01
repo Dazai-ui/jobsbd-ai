@@ -3,6 +3,7 @@ from typing import Iterable
 
 from base import JobSource
 from models import NormalizedJob
+from source_policy import DEMO_SOURCE_PRIORITY
 
 
 class DemoSource(JobSource):
@@ -27,6 +28,7 @@ class DemoSource(JobSource):
             posted_at=now,
             deadline=now + timedelta(days=21),
             source_job_id="demo-ml-001",
+            source_priority=DEMO_SOURCE_PRIORITY,
             raw_payload={"demo": True},
         )
 
@@ -43,6 +45,7 @@ class DemoSource(JobSource):
             posted_at=now,
             deadline=now + timedelta(days=14),
             source_job_id="demo-academic-001",
+            source_priority=DEMO_SOURCE_PRIORITY,
             raw_payload={"demo": True},
         )
 
@@ -57,5 +60,6 @@ class DemoSource(JobSource):
             requirements="Minimum 5 years of experience.",
             posted_at=now,
             source_job_id="demo-senior-001",
+            source_priority=DEMO_SOURCE_PRIORITY,
             raw_payload={"demo": True},
         )
