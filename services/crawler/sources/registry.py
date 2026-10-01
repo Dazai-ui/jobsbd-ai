@@ -1,5 +1,6 @@
 from sources.aiub_pdf_source import AiubFacultyPdfSource
 from sources.bdjobs_source import BdJobsSource
+from sources.bdjobs_academic_source import BdJobsAcademicSource
 from sources.demo_source import DemoSource
 from sources.ewu_pdf_source import EwuAcademicPdfSource
 from sources.html_detail_source import HtmlDetailSource
@@ -90,6 +91,7 @@ def build_sources(include_demo: bool = False):
 
         # Public job portals. Official employer pages still win on duplicates.
         BdJobsSource(),
+        BdJobsAcademicSource(),
         JobComBdSource(),
     ]
 
