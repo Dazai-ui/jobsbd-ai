@@ -1,14 +1,17 @@
+from datetime import datetime, timedelta, timezone
+
 from models import NormalizedJob
 from classifier import enrich, accepted
 
 
-def make(title, requirements=""):
+def make(title, requirements="", deadline=None):
     return NormalizedJob(
         title=title,
         organization_name="Test Org",
         source_name="Test",
         source_url="https://example.com",
         requirements=requirements,
+        deadline=deadline,
     )
 
 
@@ -29,3 +32,35 @@ def test_lecturer_is_accepted():
     assert job.is_academic
     assert job.academic_role == "lecturer"
     assert accepted(job)
+
+
+def test_senior_lecturer_is_not_entry_academic():
+    job = enrich(make("Senior Lecturer, Department of CSE"))
+    assert not job.is_academic
+
+
+def test_assistant_lecturer_is_accepted():
+    job = enrich(make("Assistant Lecturer - CSE"))
+    assert job.academic_role == "assistant_lecturer"
+    assert accepted(job)
+
+
+def test_adjunct_faculty_is_accepted():
+    job = enrich(make("Adjunct Faculty, Department of EEE"))
+    assert job.academic_role == "adjunct_faculty"
+    assert accepted(job)
+
+
+def test_academic_role_with_more_than_two_years_is_rejected():
+    job = enrich(make("Lecturer - CSE", "Minimum 3 years experience"))
+    assert job.is_academic
+    assert not accepted(job)
+
+
+def test_expired_job_is_rejected():
+    job = enrich(make(
+        "Junior ML Engineer",
+        "0-2 years experience",
+        deadline=datetime.now(timezone.utc) - timedelta(days=1),
+    ))
+    assert not accepted(job)
