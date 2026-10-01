@@ -1,8 +1,8 @@
 import os
 import traceback
 
-from classifier import enrich, accepted
-from db import get_client, record_source_run, upsert_job
+from classifier import accepted, enrich
+from db import expire_past_deadlines, get_client, record_source_run, upsert_job
 from fingerprint import make_fingerprint
 from sources.registry import build_sources
 
@@ -11,6 +11,10 @@ def main():
     dry_run = os.getenv("DRY_RUN", "false").lower() == "true"
     include_demo = os.getenv("INCLUDE_DEMO", "false").lower() == "true"
     client = None if dry_run else get_client()
+
+    if client is not None:
+        expired_count = expire_past_deadlines(client)
+        print(f"[cleanup] expired={expired_count}")
 
     sources = build_sources(include_demo=include_demo)
     total_accepted = 0
@@ -36,7 +40,8 @@ def main():
                     f"  accepted: {job.title} | {job.organization_name} "
                     f"| ai={job.is_ai_ml} academic={job.is_academic} "
                     f"| exp={job.experience_min}-{job.experience_max} "
-                    f"| deadline={job.deadline}"
+                    f"| deadline={job.deadline} "
+                    f"| priority={job.source_priority}"
                 )
 
                 if client is not None:
