@@ -8,6 +8,7 @@ from dateutil.parser import parse as parse_date
 
 from base import JobSource
 from models import NormalizedJob
+from source_policy import OFFICIAL_SOURCE_PRIORITY
 
 
 HEADERS = {
@@ -120,6 +121,7 @@ class NsuFacultySource(JobSource):
                     posted_at=posted,
                     deadline=deadline,
                     source_job_id=f"{self._slug(url)}:{role.lower().replace(' ', '-')}",
+                    source_priority=OFFICIAL_SOURCE_PRIORITY,
                     raw_payload={
                         "adapter": "nsu_bundled_academic",
                         "notice_title": title,
