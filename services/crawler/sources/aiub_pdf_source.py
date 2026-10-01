@@ -11,6 +11,7 @@ from pypdf import PdfReader
 
 from base import JobSource
 from models import NormalizedJob
+from source_policy import OFFICIAL_SOURCE_PRIORITY
 
 
 HEADERS = {
@@ -147,6 +148,7 @@ class AiubFacultyPdfSource(JobSource):
                     posted_at=posted,
                     deadline=deadline,
                     source_job_id=f"{slug}:{role.lower().replace(' ', '-')}",
+                    source_priority=OFFICIAL_SOURCE_PRIORITY,
                     raw_payload={
                         "adapter": self.adapter_name,
                         "listing_label": label,
