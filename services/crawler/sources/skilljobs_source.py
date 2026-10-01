@@ -8,6 +8,7 @@ from dateutil.parser import parse as parse_date
 
 from base import JobSource
 from models import NormalizedJob
+from source_policy import PORTAL_SOURCE_PRIORITY
 
 
 HEADERS = {
@@ -137,5 +138,6 @@ class SkillJobsSource(JobSource):
                 posted_at=self._date(text, "posted"),
                 deadline=self._date(text, "deadline"),
                 source_job_id=url.rstrip("/").rsplit("/", 1)[-1],
+                source_priority=PORTAL_SOURCE_PRIORITY,
                 raw_payload={"adapter": "skilljobs"},
             )
