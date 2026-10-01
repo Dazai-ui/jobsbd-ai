@@ -2,6 +2,8 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
+from source_policy import DISCOVERY_SOURCE_PRIORITY
+
 
 @dataclass
 class NormalizedJob:
@@ -33,6 +35,7 @@ class NormalizedJob:
     deadline: Optional[datetime] = None
 
     source_job_id: Optional[str] = None
+    source_priority: int = DISCOVERY_SOURCE_PRIORITY
     raw_payload: Dict[str, Any] = field(default_factory=dict)
 
     fingerprint: Optional[str] = None
