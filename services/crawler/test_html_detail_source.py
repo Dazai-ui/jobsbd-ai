@@ -42,3 +42,13 @@ def test_h3_heading_supported_for_du_style_pages():
         "html.parser",
     )
     assert source()._first_heading(soup) == "Lecturer, Department of CSE (02 post)"
+
+
+def test_generic_follow_us_heading_is_skipped():
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(
+        "<h1>Follow Us</h1><h2>Research Physician – SmartAMR Project</h2>",
+        "html.parser",
+    )
+    assert source()._first_heading(soup) == "Research Physician – SmartAMR Project"
