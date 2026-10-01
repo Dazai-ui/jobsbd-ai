@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
+import { sanitizeFilterTerm } from "@/lib/search";
 import type { Job } from "@/types/job";
 
 export const revalidate = 300;
@@ -38,8 +39,8 @@ export default async function Home({
 }) {
   const params = await searchParams;
   const type = params.type ?? "all";
-  const q = params.q?.trim() ?? "";
-  const location = params.location?.trim() ?? "";
+  const q = sanitizeFilterTerm(params.q);
+  const location = sanitizeFilterTerm(params.location);
   const fresh = params.fresh === "1";
   const maxExp = params.max_exp ? Number(params.max_exp) : null;
 
@@ -58,14 +59,13 @@ export default async function Home({
   if (type === "academic") query = query.eq("is_academic", true);
 
   if (q) {
-    const safe = q.replaceAll(",", " ");
     query = query.or(
-      `title.ilike.%${safe}%,organization_name.ilike.%${safe}%,department.ilike.%${safe}%,job_category.ilike.%${safe}%`
+      `title.ilike.%${q}%,organization_name.ilike.%${q}%,department.ilike.%${q}%,job_category.ilike.%${q}%`
     );
   }
 
   if (location) {
-    query = query.ilike("location", `%${location.replaceAll(",", " ")}%`);
+    query = query.ilike("location", `%${location}%`);
   }
 
   if (fresh) query = query.eq("freshers_allowed", true);
