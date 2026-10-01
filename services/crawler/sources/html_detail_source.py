@@ -8,6 +8,7 @@ from dateutil.parser import parse as parse_date
 
 from base import JobSource
 from models import NormalizedJob
+from source_policy import OFFICIAL_SOURCE_PRIORITY
 
 
 DEFAULT_HEADERS = {
@@ -159,6 +160,7 @@ class HtmlDetailSource(JobSource):
             posted_at=self._extract_posted(compact),
             deadline=self._extract_deadline(compact),
             source_job_id=self._source_job_id(url),
+            source_priority=OFFICIAL_SOURCE_PRIORITY,
             raw_payload={"adapter": "html_detail_source"},
         )
 
