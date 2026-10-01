@@ -9,7 +9,11 @@ on:
       - ".github/workflows/crawl.yml"
       - "supabase/functions/github-ingest/**"
   schedule:
-    - cron: "17 * * * *"
+    - cron: "7,37 * * * *"
+
+concurrency:
+  group: jobsbd-crawler
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -18,7 +22,7 @@ permissions:
 jobs:
   crawl:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
