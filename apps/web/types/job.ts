@@ -13,8 +13,10 @@ export type Job = {
   freshers_allowed: boolean;
   is_ai_ml: boolean;
   is_academic: boolean;
+  relevance_score: number;
   posted_at: string | null;
   deadline: string | null;
+  first_seen_at: string;
   source_name: string;
   source_url: string;
 };
